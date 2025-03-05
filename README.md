@@ -61,8 +61,8 @@ graph TD
 ### 1、订单管理
 + 从平台同步订单
 + 订单发货
-  + 获取订单收货地址信息
-  + 推送物流信息到平台
+   + 获取订单收货地址信息
+   + 推送物流信息到平台
 + 订单备注修改
 
 ### 2、发货管理
@@ -93,7 +93,7 @@ graph TD
 + MySQL8
 + Redis：7.x
 + Kafka(消息队列)
-+ Nacos：2.2.0（配置中心、注册中心）
++ Nacos：2.3.0（配置中心、注册中心）
 + Sentinel（分布式流量治理组件）
 
 
@@ -105,24 +105,24 @@ graph TD
 项目公共模块
 
 + `security`
-公共权限验证模块
+  公共权限验证模块
 
 + `goods`
-商品模块
+  商品模块
 #### 2.2 微服务
 + `gateway`
-网关项目，负责微服务接口转发，前端统一通过网关调用其他微服务接口；
+  网关项目，负责微服务接口转发，前端统一通过网关调用其他微服务接口；
 
 采用`gateway`进行api分发，引入Sentinel进行流量治理。
 
 + `sys-api`
-项目系统微服务，主要功能包括：
+  项目系统微服务，主要功能包括：
 
 + 用户
 + 菜单
 
 + `oms-api`
-oms主功能微服务，主要功能包括：
+  oms主功能微服务，主要功能包括：
 
 + 队列消息处理（订单消息、退款消息）
 + 订单接口
@@ -130,7 +130,7 @@ oms主功能微服务，主要功能包括：
 + 店铺接口
 
 + `open-api`
-各开放平台微服务
+  各开放平台微服务
 
 + 淘宝开放平台接口api
 
@@ -159,19 +159,71 @@ oms主功能微服务，主要功能包括：
 2. 启动Redis7
 
 3. 启动Sentinel1.8.7控制台(可以不需要)
-   `java -Dserver.port=8888 -Dcsp.sentinel.dashboard.server=localhost:8888 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard.jar`
-4. 启动Nacos（注册中心）
 
+   方式1:`java -Dserver.port=8888 -Dcsp.sentinel.dashboard.server=localhost:8888 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard.jar`
+
+   方式2:`docker run --name sentinel -p 8858:8858 -td bladex/sentinel-dashboard:1.8.7 -v /etc/localtime:/etc/localtime`
+
+4. 启动Nacos（注册中心）
+    ```
+    #NACOS_AUTH_TOKEN长度超过32字符，并使用Base64编码
+    
+    docker run -d --name docker-nacos \
+    --restart=always \
+    -e MODE=standalone \
+    -e NACOS_AUTH_ENABLE=true \
+    -e NACOS_AUTH_IDENTITY_KEY=qihang \
+    -e NACOS_AUTH_IDENTITY_VALUE=qihang \
+    -e NACOS_AUTH_TOKEN=VGhpc0lzTXlDdXN0b21TZWNyZXRLZXkwMTIzNDU2Nzg= \
+    -p 8848:8848 \
+    nacos/nacos-server:2.3.0
+    ```
 5. 启动Kafka（消息队列）
-`启动KRaft模式kafka`
+
+   方式1:
+   启动KRaft模式kafka
    + 0 进入kafka解压目录
    + 1 生成UUID`bin\windows\kafka-storage.bat random-uuid`
    + 2 格式化`bin\windows\kafka-storage.bat format -t ujpyXZx-S9-jGlwxgORmow -c config\kraft\server.properties`
    + 3 启动`bin\windows\kafka-server-start.bat config\kraft\server.properties`
 
+   方式2:
+   + 0 创建docker-compose.yml文件
+   + 1 粘贴以下内容
+        ```
+        name: "kafka"
+        services:
+        kafka:
+        image: 'apache/kafka:latest'
+        container_name: kafka
+        restart: always
+        ulimits:
+        nofile:
+        soft: 65536
+        hard: 65536
+        environment:
+        - KAFKA_NODE_ID=0
+        - KAFKA_PROCESS_ROLES=controller,broker
+        - KAFKA_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+        - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+        - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.100.171:9092
+        - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+        - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+        - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+        - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+        - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+        - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+        - KAFKA_NUM_PARTITIONS=3
+        ports:
+        - '9092:9092'
+        volumes:
+        - /etc/localtime:/etc/localtime 
+   + 2 修改192.168.100.171为你的服务器地址
+   + 3 运行命令`docker compose up -d`
+
 #### 3.2、导入数据库
 + 创建数据库`qihang-oms`
-  + 导入数据库结构：sql脚本`docs\qihang-oms.sql`
+   + 导入数据库结构：sql脚本`docs\qihang-oms.sql`
 
 
 #### 3.3、启动服务(项目)
@@ -182,7 +234,7 @@ oms主功能微服务，主要功能包括：
 #### 3.4、运行前端
 + Nodejs版本：v16.20.0
 + 进入`vue`文件夹
-+ 运行`npm install` 
++ 运行`npm install`
 + 运行`npm run dev`
 + 浏览网页`http://localhost:88`
 

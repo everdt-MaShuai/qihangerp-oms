@@ -245,12 +245,23 @@ graph TD
 ##### 后端打包
 `mvn clean package`
 
+docker方式启动
+```
+docker run -d --name qh-gateway --restart=always -p 8088:8088 -v /opt/apps/qihangerp-oms/:/app eclipse-temurin:17-jre-alpine java -jar /app/gateway-2.0.0.jar
+docker run -d --name qh-oms-api --restart=always -p 8083:8083 -v /opt/apps/qihangerp-oms/:/app eclipse-temurin:17-jre-alpine java -jar /app/oms-api-3.2.0.jar
+docker run -d --name qh-open-api --restart=always -p 8081:8081 -v /opt/apps/qihangerp-oms/:/app eclipse-temurin:17-jre-alpine java -jar /app/open-api-3.2.0.jar
+# open-api中UniqueIDGenerator使用了lsblk命令,需要进入镜像安装
+# docker exec -it qh-open-api /bin/sh
+# apk add lsblk
+docker run -d --name qh-sys-api --restart=always -p 8082:8082 -v /opt/apps/qihangerp-oms/:/app eclipse-temurin:17-jre-alpine java -jar /app/sys-api-1.0.jar
+```
+
 ##### 前端打包
 `pnpm run build:prod`
 
 
 #### 4.2 Nginx配置
-```
+
 # 上传文件至远程服务器
 将打包生成在 `dist` 目录下的文件拷贝至 `/usr/share/nginx/html` 目录
 

@@ -6,6 +6,8 @@ import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from "@/utils/zhijian";
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
+import {loginUrl} from "@/settings";
+import {resetRouter} from "@/router";
 
 let downloadLoadingInstance;
 // 是否显示重新登录
@@ -81,7 +83,8 @@ service.interceptors.response.use(res => {
         MessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
           isRelogin.show = false;
           store.dispatch('LogOut').then(() => {
-            location.href = '/index';
+            resetRouter();
+            window.location.href = loginUrl;
           })
       }).catch(() => {
         isRelogin.show = false;

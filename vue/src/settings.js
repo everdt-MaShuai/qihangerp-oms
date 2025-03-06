@@ -1,4 +1,5 @@
 module.exports = {
+  loginUrl : process.env.VUE_APP_BASE_URL+"#/login",
   /**
    * 侧边栏主题 深色主题theme-dark，浅色主题theme-light
    */

@@ -144,7 +144,16 @@ Router.prototype.replace = function push(location) {
 }
 
 export default new Router({
-  mode: 'history', // 去掉url中的#
+  // mode: 'history', // 去掉url中的#
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
+
+export function resetRouter() { // 重置路由 比如用于身份验证失败，需要重新登录时 先清空当前的路有权限
+  const newRouter = new Router({
+    // mode: 'history', // 去掉url中的#
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
+  Router.matcher = newRouter.matcher // reset router
+}

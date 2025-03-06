@@ -54,6 +54,8 @@ import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
+import {loginUrl} from "@/settings";
+import {resetRouter} from "@/router";
 
 export default {
   components: {
@@ -98,7 +100,8 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('LogOut').then(() => {
-          location.href = '/index';
+          resetRouter();
+          window.location.href = loginUrl;
         })
       }).catch(() => {});
     }
